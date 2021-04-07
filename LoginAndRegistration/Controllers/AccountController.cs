@@ -6,6 +6,8 @@ using LoginAndRegistration.Models;
 using LoginAndRegistration.ViewModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Dapper;
 
 namespace LoginAndRegistration.Controllers
 {
@@ -101,6 +103,15 @@ namespace LoginAndRegistration.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult GetUserDetails()
+        {
+            var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            DynamicParameters param = new DynamicParameters();
+            param.Add("@Id", userId);
+            var user = DapperMethods.ReturnUser<ApplicationUser>("GetUserById", param);
+            return View(user);
         }
     }
 }
