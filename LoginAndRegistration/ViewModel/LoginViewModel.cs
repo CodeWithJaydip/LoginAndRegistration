@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 
 namespace LoginAndRegistration.ViewModel
 {
@@ -17,5 +18,9 @@ namespace LoginAndRegistration.ViewModel
 
         [Display(Name ="Remember Me")]
         public bool RememberMe { get; set; }
+
+        public string ReturnUrl { get; set; }
+
+        public IList<AuthenticationScheme> ExternalLogins { get; set; }
     }
 }

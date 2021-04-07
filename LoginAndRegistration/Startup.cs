@@ -34,6 +34,21 @@ namespace LoginAndRegistration
             //services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             //    .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddAuthentication()
+                .AddFacebook(facebookOptions =>
+                    {
+                       facebookOptions.AppId = Configuration["Authentication:Facebook:AppId"];
+                       facebookOptions.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+                     })
+                .AddGoogle(googleOptions =>
+                    {
+                        googleOptions.ClientId = "199389790493-j6ae92h521viu68jn7980329r4hqot8u.apps.googleusercontent.com";
+                        googleOptions.ClientSecret = "gNoWo4iEfaUXNLoG_47quUSD";
+                    });
+
+
+
+
             services.AddControllersWithViews();
             services.AddRazorPages();
         }
