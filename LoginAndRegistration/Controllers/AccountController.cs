@@ -122,9 +122,14 @@ namespace LoginAndRegistration.Controllers
         [HttpPost]
         public IActionResult ExternalLogin(string provider,string returnUrl)
         {
-            var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
+            var redirectUrl = Url.Action("ExternalLoginCallback" +
+                "", "Account", new { ReturnUrl = returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return new ChallengeResult(provider, properties);
+        }
+        public IActionResult ExteralLoginView()
+        {
+            return View();
         }
 
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl=null,string remoteError = null)
@@ -162,10 +167,12 @@ namespace LoginAndRegistration.Controllers
                         user = new ApplicationUser()
                         {
                             UserName = info.Principal.FindFirstValue(ClaimTypes.Email),
-                            Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                            Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                            Name=info.Principal.FindFirstValue(ClaimTypes.Name)
 
                         };
-                        await _userManager.CreateAsync(user);
+                        return View(user);
+                        //await _userManager.CreateAsync(user);
                     }
                     await _userManager.AddLoginAsync(user, info);
                     await _signInManager.SignInAsync(user, isPersistent: false);
@@ -181,6 +188,47 @@ namespace LoginAndRegistration.Controllers
             return View("Login", loginViewModel);
 
         }
-        
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExternalLoginCallback(ApplicationUser model)
+        {
+           
+            // Get the information about the user from the external login provider
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                var ErrorMessage = "Error loading external login information during confirmation.";
+                
+            }
+            if (ModelState.IsValid)
+            {
+                ApplicationUser user = new ApplicationUser()
+                {
+                    UserName=model.Email,
+                    Email = model.Email,
+                    Name = model.Name
+                };
+               
+             var result=await _userManager.CreateAsync(user);
+                if (result.Succeeded)
+                {
+                    result = await _userManager.AddLoginAsync(user, info);
+                    if (result.Succeeded)
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+
+                        return RedirectToAction("Index","Home");
+                    }
+                }
+
+               
+                
+            }
+            return View(model);
+        }
+
+
+
     }
 }

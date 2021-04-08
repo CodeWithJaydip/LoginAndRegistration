@@ -15,8 +15,9 @@ namespace LoginAndRegistration.ViewModel
         
 
         public string Email { get; set; }
+        public string ReturnUrl { get; set; }
 
-        
+
         public string Name { get; set; }
         
         public DateTime DOB { get; set; }

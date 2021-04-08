@@ -7,6 +7,7 @@ using LoginAndRegistration.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Stripe;
 
 namespace LoginAndRegistration.Controllers
 {
@@ -26,6 +27,48 @@ namespace LoginAndRegistration.Controllers
         [Authorize]
         public IActionResult Privacy()
         {
+            return View();
+        }
+
+        public IActionResult Payment()
+        {
+            return View();
+        }
+
+        public IActionResult Charge(string stripeEmail,string stripeToken)
+        {
+            var customers = new CustomerService();
+            var charges = new ChargeService();
+
+            var customer = customers.Create(new CustomerCreateOptions
+            {
+                Email = stripeEmail,
+                Source = stripeToken
+            });
+
+            var charge = charges.Create(new ChargeCreateOptions
+            {
+                Amount = 500,
+                Description = "Test Payment",
+                Currency = "inr",
+                Customer = customer.Id,
+                ReceiptEmail=stripeEmail,
+                Metadata=new Dictionary<string, string>() 
+                {
+                    {"OrderId","111" },
+                    { "PostalCode","387810"}
+                }
+            });
+
+            if (charge.Status == "succeeded")
+            {
+                string BalanceTransactionId = charge.BalanceTransactionId;
+                return View();
+            }
+            else
+            {
+
+            }
             return View();
         }
 
